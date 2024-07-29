@@ -1,3 +1,3 @@
-import { RequestAllInOne } from './tools/apiAllInOne/fetch-data.ts';
+import { RequestAllInOne } from './tools/apiAllInOne/fetch-data';
 
 export { RequestAllInOne }

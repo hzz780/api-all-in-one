@@ -1,5 +1,7 @@
 # Quick Start
 
+fetch for get, post, socket.io for socket, @apollo/client for graphql
+
 ```bash
 npm install request-all-in-one
 ```
@@ -38,13 +40,6 @@ client.gql('https://countries.trevorblades.com', {
   query: queryCountries
 });
 ```
-
-fetch for get, post
-
-socket.io for socket
-
-@apollo/client for graphql
-
 
 # React + TypeScript + Vite
 

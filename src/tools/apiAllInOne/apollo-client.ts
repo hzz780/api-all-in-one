@@ -6,7 +6,7 @@ export interface IApolloRequestOptions extends IBaseRequestOptions {
   query?: any;
 }
 
-interface IApolloClientOptions {
+export interface IApolloClientOptions {
   uri: any;
   cache: any;
 }

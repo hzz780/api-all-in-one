@@ -1,6 +1,6 @@
-import {createApolloClient, IApolloRequestOptions} from './apollo-client';
+import {createApolloClient, IApolloRequestOptions, IApolloClientOptions } from './apollo-client';
 import {fetchData} from './fetch';
-import { ApolloClient, gql } from "@apollo/client";
+import {ApolloClient, gql, InMemoryCache} from "@apollo/client";
 import { io, Socket } from 'socket.io-client';
 import {ISocketRequestOptions} from './socket-io';
 
@@ -18,23 +18,32 @@ export const defaultHeaders = {
 
 export class RequestAllInOne {
   private readonly headers: Record<string, string>;
-  private readonly apolloConfig: any;
-  private readonly apolloClient: ApolloClient<any> | undefined; // TCacheShape
-  private readonly socketClient: Socket | undefined;
+  // private readonly apolloConfig: any;
+  public apolloClient: ApolloClient<any> | undefined; // TCacheShape
+  public socketClient: Socket | undefined;
   private options: Partial<IRequestOptions>;
   constructor(options: Partial<IRequestOptions>) {
     this.options = options || {};
     this.headers = options.headers || defaultHeaders;
 
-    if (options.socketPath) {
-      this.socketClient = io({
-        path: options.socketPath
-      });
+    this.initSocketIo(options as ISocketRequestOptions);
+    this.initApollo(options.apolloConfig);
+  }
+
+  initSocketIo(options: ISocketRequestOptions) {
+    if (!options || !options.socketPath) {
+      return;
     }
-    if (options.apolloConfig) {
-      this.apolloConfig = options.apolloConfig;
-      this.apolloClient = createApolloClient(this.apolloConfig);
+    this.socketClient = io({
+      path: options.socketPath
+    });
+  }
+
+  initApollo(apolloConfig: IApolloClientOptions) {
+    if (!apolloConfig) {
+      return;
     }
+    this.apolloClient = createApolloClient(apolloConfig);
   }
 
   async get(url: string) {
@@ -55,7 +64,14 @@ export class RequestAllInOne {
   async gql(url: string, options: IApolloRequestOptions = {}) {
     if (!this.apolloClient) {
       console.log('url: ', url);
-      throw Error('No apollo client found')
+      this.initApollo({
+        uri: url,
+        cache: new InMemoryCache()
+      });
+    }
+    if (!this.apolloClient) {
+      console.log('url: ', url);
+      throw Error('No apollo client found');
     }
     const { data } = await this.apolloClient.query({
       query: gql`${options.query}`,
